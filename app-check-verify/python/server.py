@@ -18,7 +18,8 @@ from flask import Flask, request, abort, Response
 
 app = Flask(__name__)
 
-@app.route('/', methods = ['POST', 'GET'])
+
+@app.route('/', methods=['POST', 'GET'])
 def hello_app():
     return Response(f"Hello, app #{app.config['APP_ID']}", mimetype='text/plain')
 
@@ -34,9 +35,9 @@ def run_checks():
 def verify_app_check(token):
     if token is None:
         return None
-    
+
     # Obtain the Firebase App Check Public Keys
-    # Note: It is not recommended to hard code these keys as they rotate, 
+    # Note: It is not recommended to hard code these keys as they rotate,
     # but you should cache them for up to 6 hours.
     url = "https://firebaseappcheck.googleapis.com/v1beta/jwks"
 
@@ -45,9 +46,11 @@ def verify_app_check(token):
 
     header = jwt.get_unverified_header(token)
     # Ensure the token's header uses the algorithm RS256
-    if header.get('alg') != 'RS256': return None
+    if header.get('alg') != 'RS256':
+        return None
     # Ensure the token's header has type JWT
-    if header.get('typ') != 'JWT': return None
+    if header.get('typ') != 'JWT':
+        return None
 
     payload = {}
     try:
@@ -60,10 +63,12 @@ def verify_app_check(token):
             # Ensure the token's audience matches your project
             audience="projects/" + app.config["PROJECT_NUMBER"],
             # Ensure the token is issued by App Check
-            issuer="https://firebaseappcheck.googleapis.com/" + app.config["PROJECT_NUMBER"],
+            issuer="https://firebaseappcheck.googleapis.com/" + \
+            app.config["PROJECT_NUMBER"],
         )
     except:
         print(f'Unable to verify the token')
-    # The token's subject will be the app ID, you may optionally filter against 
+
+    # The token's subject will be the app ID, you may optionally filter against
     # an allow list
     return payload.get('sub')
